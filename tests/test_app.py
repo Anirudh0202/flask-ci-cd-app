@@ -5,4 +5,4 @@ def test_home():
     client = app.test_client()
     resp = client.get('/')
     assert resp.status_code == 200
-    assert b"Hello from your first CI/CD Flask App!" in resp.data
+    assert b"CI/CD pipeline working with new update!" in resp.data
