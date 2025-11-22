@@ -1,18 +1,13 @@
-name: CD - Build & Deploy
+name: CD - Build Docker Image
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  contents: read
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      image: ${{ steps.set-image.outputs.image }}
 
     steps:
       - name: Checkout
@@ -36,21 +31,3 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/flask-ci-cd-app:${{ github.sha }}
-
-      - name: Set image output
-        id: set-image
-        run: echo "image=${{ secrets.DOCKERHUB_USERNAME }}/flask-ci-cd-app:${{ github.sha }}" >> $GITHUB_OUTPUT
-
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@v1.7.0
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            ~/deploy.sh ${{ needs.build-and-push.outputs.image }}
